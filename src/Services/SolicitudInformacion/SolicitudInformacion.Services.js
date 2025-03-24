@@ -5,8 +5,10 @@ import { EnviarMailServices } from "../mail/EnviarMail.Services.js";
 export const IngresarSolicitudServices = async (data) => {
   try {
     const result = await SaveInformacionDao(data);
-    (result === 1) && EnviarMailServices(data);
-    return result;
+    (result !== 0) && EnviarMailServices(data);
+    if(result !== 0){
+      return 1;
+    }
   } catch (error) {
     throw error;
   }
