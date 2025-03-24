@@ -1,20 +1,32 @@
-import { cerrarConexion, establecerConexion } from "../Connection/Connection.js";
-
+import { Connection } from "../Connection/ConecctionSqlit.js";
 
 export const SaveInformacionDao = async (data) => {
-    let connection ;
+    try {
+        const query = ` INSERT INTO informacion ( nombreCompleto, sexo, tipoDocumento, numeroDocumento, telefono, correo,
+                                                  etnia, pertenenciaSocial, descripcionSolicitud, tipoNotificacion)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        `;
 
-    try{
-        connection = await establecerConexion();
-        const [result] = await connection.query("insert into informacion (nombreCompleto, sexo, tipoDocumento, numeroDocumento, telefono, correo,etnia, pertenenciaSocial, descripcionSolicitud, tipoNotificacion)values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", [data.nombreCompleto, data.sexo, data.tipoDocumento, data.numeroDocumento,data.telefono, data.correo, data.etnia, data.pertenenciaSocial, data.descripcionSolicitud, data.tipoNotificacion]);
-        return result.affectedRows;
-    }catch(error){
-        throw error;
-    }finally{
-        cerrarConexion(connection);
+        const result = await Connection.execute(query, [
+            data.nombreCompleto, 
+            data.sexo, 
+            data.tipoDocumento, 
+            data.numeroDocumento,
+            data.telefono, 
+            data.correo, 
+            data.etnia, 
+            data.pertenenciaSocial, 
+            data.descripcionSolicitud, 
+            data.tipoNotificacion
+        ]);
+        
+        // SQLite devuelve el ID del último registro insertado así
+        return result.toJSON().lastInsertRowid;
+    } catch (error) {
+        const dbError = getDatabaseError(error.message);
+        throw new CustomError(dbError);
     }
-}
-
+};
 
 export const GetSolicitudesDao = async () => {
     let connection ;
